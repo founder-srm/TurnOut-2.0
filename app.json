@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "turnOut 2.0",
+    "slug": "turnOut 2.0",
+    "version": "1.0.0",
+    
+      "scheme": "turnOut 2.0",
+      "web": {
+        "bundler": "metro",
+        "output": "static",
+        "favicon": "./assets/favicon.png"
+      },
+      "plugins": [
+      "expo-router"
+      
+      
+        ,[
+        "expo-dev-launcher",
+        {
+          "launchMode": "most-recent"
+        }
+      ]
+      
+    ],
+    "newArchEnabled":true,
+      "experiments": {
+        "typedRoutes": true
+        
+          ,"tsconfigPaths": true
+        
+      },
+    
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    
+     "userInterfaceStyle": "light",
+    
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    }
+  }
+}

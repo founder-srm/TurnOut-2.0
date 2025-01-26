@@ -139,7 +139,7 @@ export default function Home() {
               transition={{ type: 'spring', damping: 10 }}
             >
               <TouchableOpacity
-                className="bg-[#FDB623] rounded-xl py-3 px-[86px] mt-5 flex-row items-center"
+                className="bg-[#FDB623] rounded-xl py-3 px-[86px] mt-12 flex-row items-center"
                 activeOpacity={0.8}
                 onPress={() => router.push('/(drawer)')}
               >

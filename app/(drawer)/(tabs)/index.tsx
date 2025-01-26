@@ -62,7 +62,7 @@ export default function QRGeneratorScreen() {
       <View className="relative flex-1 px-6 pt-4">
         <Image
           source={require("../../../assets/Vector 11.png")}
-          className="absolute w-[400px] h-[400px] px-0 pt-0 bottom-0"
+          className="absolute w-[500px] h-[400px] px-0 pt-0 bottom-0"
           style={{
             transform: [{ scaleX: -1 }],
             opacity: 0.9,

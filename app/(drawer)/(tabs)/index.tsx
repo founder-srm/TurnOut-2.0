@@ -8,7 +8,7 @@ import { Animated, View, Text, Pressable, StatusBar, Image } from "react-native"
 
 const options = [
   { name: "History", icon: History, route: "/history" },
-  { name: "Attendance", icon: User, route: "/attendance" },
+  { name: "Attendance", icon: User, route: "/attendence" },
   { name: "Settings", icon: Settings, route: "/options" },
   { name: "Developers", icon: Code, route: "/developer" },
 ]
@@ -36,7 +36,7 @@ export default function QRGeneratorScreen() {
   }, [isVisible, animationValue])
 
   const handleNavigation = (route: string) => {
-    router.push(route)
+    router.push(route as any)
   }
 
   const animatedStyle = {

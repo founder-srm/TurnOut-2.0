@@ -1,3 +1,4 @@
+//something
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Image, Alert } from 'react-native';

@@ -50,8 +50,6 @@ TurnOut is a modern and advanced attendance marking system built with **React Na
 - View real-time updates on attendance records.
 - Manage users and permissions (Admin role required).
 
-## Screenshots
-(Add some screenshots of the app here)
 
 ## Contributing
 

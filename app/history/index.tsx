@@ -14,10 +14,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChevronLeft } from 'lucide-react-native';
 import qr_logo from '../../assets/qr_logo.png';
 import dlt from '../../assets/delete.png';
+import { supabase } from '../../utils/supabase';
 
 interface QRData {
   link: string;
   scanTime: string;
+  rollNumber?: string;
 }
 
 export default function HistoryScreen() {
@@ -25,11 +27,44 @@ export default function HistoryScreen() {
   const { qrLink, scanTime } = useLocalSearchParams();
   const router = useRouter();
 
+  const fetchRegistrationDetails = async (registrationId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('eventsregistrations')
+        .select('details')
+        .eq('id', registrationId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching registration:', error);
+        return null;
+      }
+
+      return data?.details?.rollNumber || null;
+    } catch (error) {
+      console.error('Error in fetchRegistrationDetails:', error);
+      return null;
+    }
+  };
+
   const loadQrData = async () => {
     try {
       const storedData = await AsyncStorage.getItem('qrDataList');
       if (storedData) {
-        setQrDataList(JSON.parse(storedData));
+        const parsedData = JSON.parse(storedData);
+        
+        // Fetch roll numbers for each registration
+        const updatedData = await Promise.all(
+          parsedData.map(async (item: QRData) => {
+            const rollNumber = await fetchRegistrationDetails(item.link);
+            return {
+              ...item,
+              rollNumber: rollNumber || 'No Roll Number'
+            };
+          })
+        );
+        
+        setQrDataList(updatedData);
       }
     } catch (error) {
       console.error('Failed to load QR data:', error);
@@ -49,11 +84,21 @@ export default function HistoryScreen() {
   }, []);
 
   useEffect(() => {
-    if (qrLink && scanTime && !qrDataList.some((item) => item.link === qrLink)) {
-      const updatedData = [...qrDataList, { link: qrLink as string, scanTime: scanTime as string }];
-      setQrDataList(updatedData);
-      saveQrData(updatedData);
-    }
+    const updateQRList = async () => {
+      if (qrLink && scanTime && !qrDataList.some((item) => item.link === qrLink)) {
+        const rollNumber = await fetchRegistrationDetails(qrLink as string);
+        const newEntry = {
+          link: qrLink as string,
+          scanTime: scanTime as string,
+          rollNumber: rollNumber || 'No Roll Number'
+        };
+        const updatedData = [...qrDataList, newEntry];
+        setQrDataList(updatedData);
+        saveQrData(updatedData);
+      }
+    };
+
+    updateQRList();
   }, [qrLink, scanTime, qrDataList]);
 
   const handleDelete = (indexToDelete: number) => {
@@ -77,17 +122,14 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
       <View style={styles.backButtonContainer}>
         <TouchableOpacity onPress={() => router.back()}>
           <ChevronLeft color="#FDB623" size={24} />
         </TouchableOpacity>
       </View>
 
-      {/* Title */}
       <Text style={styles.title}>History</Text>
 
-      {/* Scrollable List */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {qrDataList.length === 0 ? (
           <Text style={styles.noDataText}>No QR codes scanned yet.</Text>
@@ -97,8 +139,8 @@ export default function HistoryScreen() {
               <Image source={qr_logo} style={styles.qrLogo} />
               <View style={styles.qrDetails}>
                 <TouchableOpacity onPress={() => handleOpenLink(item.link)}>
-                  <Text style={styles.qrLink} numberOfLines={1}>
-                    {item.link}
+                  <Text style={styles.rollNumber}>
+                    {item.rollNumber}
                   </Text>
                   <Text style={styles.qrTime}>Scanned At: {item.scanTime}</Text>
                 </TouchableOpacity>
@@ -171,7 +213,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
   },
-  qrLink: {
+  rollNumber: {
     color: '#D9D9D9',
     fontSize: 17,
   },

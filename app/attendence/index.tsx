@@ -15,9 +15,17 @@ import { supabase } from "../../utils/supabase"
 
 const DEFAULT_EVENT_ID = "32d20028-3b40-41f5-b14f-bee9a993e046"
 
+type Registration = {
+  id: string
+  rollNumber: string
+  fullName: string
+  attendance: string
+  eventTitle: string
+}
+
 export default function AttendanceScreen() {
   const router = useRouter()
-  const [registrations, setRegistrations] = useState([])
+  const [registrations, setRegistrations] = useState<Registration[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -34,6 +42,8 @@ export default function AttendanceScreen() {
         .from("eventsregistrations")
         .select("id, details, attendance, event_title")
         .eq("event_id", DEFAULT_EVENT_ID)
+        .eq("is_approved", "ACCEPTED")
+        .order('attendance', { ascending: false }) // Present first, then Absent
 
       if (error) throw error
 
@@ -41,14 +51,17 @@ export default function AttendanceScreen() {
         id: registration.id,
         rollNumber: registration.details.rollNumber,
         fullName: registration.details.fullName,
-        isPresent: registration.attendance === "Present",
+        attendance: registration.attendance,
         eventTitle: registration.event_title,
       }))
 
-      // Sort by roll number
-      formattedRegistrations.sort((a, b) => 
-        a.rollNumber.localeCompare(b.rollNumber, undefined, { numeric: true })
-      )
+      // Sort by roll number within each attendance status
+      formattedRegistrations.sort((a, b) => {
+        if (a.attendance !== b.attendance) {
+          return a.attendance === "Present" ? -1 : 1
+        }
+        return a.rollNumber.localeCompare(b.rollNumber, undefined, { numeric: true })
+      })
 
       setRegistrations(formattedRegistrations)
     } catch (error) {
@@ -63,9 +76,9 @@ export default function AttendanceScreen() {
     }
   }
 
-  const markAttendance = async (registrationId) => {
+  const markAttendance = async (registrationId: string) => {
     try {
-      const { data, error } = await supabase.rpc(
+      const { error } = await supabase.rpc(
         "mark_attendance", 
         { registration_id: registrationId }
       )
@@ -87,7 +100,6 @@ export default function AttendanceScreen() {
   }
 
   const resetAttendance = async () => {
-    // Show confirmation dialog
     Alert.alert(
       "Confirm Reset",
       "Are you sure you want to reset attendance for all students?",
@@ -102,12 +114,15 @@ export default function AttendanceScreen() {
           onPress: async () => {
             try {
               setLoading(true)
-              const { data, error } = await supabase.rpc(
-                "reset_attendance", 
-                { event_id: DEFAULT_EVENT_ID }
+              const { error } = await supabase.rpc(
+                'reset_attendance', 
+                { input_event_id: DEFAULT_EVENT_ID }
               )
 
-              if (error) throw error
+              if (error) {
+                console.error("Reset error:", error)
+                throw error
+              }
 
               // Refresh the registrations list
               await fetchRegistrations()
@@ -145,6 +160,8 @@ export default function AttendanceScreen() {
     )
   }
 
+  const presentCount = registrations.filter(r => r.attendance === "Present").length
+
   return (
     <View style={styles.container}>
       {/* Back Button */}
@@ -165,7 +182,7 @@ export default function AttendanceScreen() {
       {/* Stats */}
       <View style={styles.statsContainer}>
         <Text style={styles.statsText}>
-          Present: {registrations.filter((r) => r.isPresent).length} / {registrations.length}
+          Present: {presentCount} / {registrations.length}
         </Text>
       </View>
 
@@ -187,15 +204,20 @@ export default function AttendanceScreen() {
               key={registration.id}
               style={[
                 styles.studentItem, 
-                { backgroundColor: registration.isPresent ? "#34D399" : "#F87171" }
+                { backgroundColor: registration.attendance === "Present" ? "#34D399" : "#F87171" }
               ]}
               onPress={() => markAttendance(registration.id)}
             >
-              <Text style={styles.rollNumberText}>
-                {registration.rollNumber}
-              </Text>
-              <Text style={styles.nameText}>
-                {registration.fullName}
+              <View style={styles.studentInfo}>
+                <Text style={styles.rollNumberText}>
+                  {registration.rollNumber}
+                </Text>
+                <Text style={styles.nameText}>
+                  {registration.fullName}
+                </Text>
+              </View>
+              <Text style={styles.statusText}>
+                {registration.attendance}
               </Text>
             </TouchableOpacity>
           ))
@@ -269,6 +291,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 10,
     borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     elevation: 2,
     shadowColor: "#000",
     shadowOffset: {
@@ -277,6 +302,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  studentInfo: {
+    flex: 1,
   },
   rollNumberText: {
     fontSize: 18,
@@ -287,6 +315,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#FFFFFF",
     marginTop: 4,
+  },
+  statusText: {
+    color: "#FFFFFF",
+    fontWeight: "500",
+    fontSize: 14,
   },
   noDataText: {
     marginTop: 16,

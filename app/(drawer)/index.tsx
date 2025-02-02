@@ -119,14 +119,7 @@ export default function Home() {
       const formattedTime = currentTime.toLocaleString()
       setScanTime(formattedTime)
   
-      // Debug log the QR data and validate UUID
       console.log("Attempting to mark attendance for ID:", qrData)
-      // if (!isUuid(qrData)) {
-      //   console.error("Invalid UUID format:", qrData)
-      //   Alert.alert("Error", "Invalid QR code format")
-      //   setScanned(false)
-      //   return
-      // }
   
       // First check if the registration exists and is approved
       const { data: existingReg, error: fetchError } = await supabase
@@ -150,7 +143,8 @@ export default function Home() {
         return
       }
   
-      if (!existingReg.is_approved) {
+      // Check if registration is approved - using ACCEPTED enum value
+      if (existingReg.is_approved !== 'ACCEPTED') {
         Alert.alert("Not Approved", "This registration has not been approved")
         setScanned(false)
         return
@@ -167,7 +161,7 @@ export default function Home() {
       const { data: simpleUpdate, error: simpleError } = await supabase
         .from("eventsregistrations")
         .update({ attendance: "Present" })
-        .match({ id: qrData, is_approved: true, attendance: "Absent" })
+        .match({ id: qrData, is_approved: 'ACCEPTED', attendance: "Absent" })
         .select()
   
       console.log("Simple update result:", simpleUpdate, simpleError)

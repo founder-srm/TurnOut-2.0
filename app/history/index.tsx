@@ -13,9 +13,10 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import dlt from '../../assets/delete.png';
-import qr_logo from '../../assets/qr_logo.png';
-import { supabase } from '../../utils/supabase';
+import { supabase } from '~/utils/supabase';
+
+const dlt = require('../../assets/delete.png');
+const qr_logo = require('../../assets/qr_logo.png');
 
 interface QRData {
   link: string;
@@ -32,7 +33,7 @@ export default function HistoryScreen() {
     try {
       const { data, error } = await supabase
         .from('eventsregistrations')
-        .select('details')
+        .select('*')
         .eq('id', registrationId)
         .single();
 
@@ -41,7 +42,7 @@ export default function HistoryScreen() {
         return null;
       }
 
-      return data?.details?.rollNumber || null;
+      return data?.application_id || null;
     } catch (error) {
       console.error('Error in fetchRegistrationDetails:', error);
       return null;
@@ -117,7 +118,7 @@ export default function HistoryScreen() {
         Alert.alert('Error', 'Something went wrong. Unable to open the link.');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to open the link.');
+      Alert.alert('Error', `Failed to open the link. ${error}`);
     }
   };
 

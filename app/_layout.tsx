@@ -1,7 +1,6 @@
 import '../global.css';
 
 import { Stack } from 'expo-router';
-import { Header } from 'react-native/Libraries/NewAppScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export const unstable_settings = {

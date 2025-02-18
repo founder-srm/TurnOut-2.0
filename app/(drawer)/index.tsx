@@ -1,24 +1,24 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { CameraType, CameraView, FlashMode, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import jsQR from 'jsqr';
 import { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, Alert, Platform } from 'react-native';
-import { validate as isUuid } from 'uuid';
 
-import closeImg from '../../assets/close.png';
-import flashImg from '../../assets/flash.png';
-import flipImg from '../../assets/flip.png';
-import imgImg from '../../assets/image.png';
-import scanImg from '../../assets/qr-code-scan.png';
 import { supabase } from '../../utils/supabase';
 
+const closeImg = require('../../assets/close.png');
+const flashImg = require('../../assets/flash.png');
+const flipImg = require('../../assets/flip.png');
+const imgImg = require('../../assets/image.png');
+const scanImg = require('../../assets/qr-code-scan.png');
+
 export default function Home() {
-  const [facing, setFacing] = useState('back');
+  const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [image, setImage] = useState<string | null>(null);
   const [qrLink, setQrLink] = useState('');
-  const [flash, setFlash] = useState<'off' | 'torch'>('off');
+  const [flash, setFlash] = useState<FlashMode>('off');
   const router = useRouter();
   const [scanTime, setScanTime] = useState('');
   const [scanned, setScanned] = useState(false);
@@ -51,7 +51,7 @@ export default function Home() {
         await scanQRCodeFromImage(uri);
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to pick image from gallery');
+      Alert.alert('Error', `Failed to pick image from gallery ${error}`);
     }
   };
 
@@ -277,7 +277,7 @@ export default function Home() {
   };
 
   const toggleFlash = () => {
-    setFlash((current) => (current === 'off' ? 'torch' : 'off'));
+    setFlash((current) => (current === 'off' ? 'on' : 'off'));
   };
 
   if (!permission?.granted) {
@@ -303,7 +303,7 @@ export default function Home() {
           }}
           style={{ position: 'absolute', width: '100%', height: '100%' }}
           facing={facing}
-          flashMode={flash}
+          flash={flash}
         />
       )}
 

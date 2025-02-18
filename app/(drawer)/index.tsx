@@ -277,7 +277,7 @@ export default function Home() {
   };
 
   const toggleFlash = () => {
-    setFlash((current) => (current === 'off' ? 'torch' : 'off'));
+    setFlash((current) => (current === 'off' ? 'on' : 'off'));
   };
 
   if (!permission?.granted) {

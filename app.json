@@ -1,10 +1,9 @@
 {
   "expo": {
-    "name": "turnOut 2.0",
-    "slug": "turnOut 2.0",
-    "version": "1.0.0",
-    
-      "scheme": "turnOut 2.0",
+    "name": "turnout-app",
+    "slug": "turnout-app",
+    "version": "2.0.0",
+    "scheme": "turnout-app",
       "web": {
         "bundler": "metro",
         "output": "static",

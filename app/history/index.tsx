@@ -13,9 +13,10 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import dlt from '../../assets/delete.png';
-import qr_logo from '../../assets/qr_logo.png';
-import { supabase } from '../../utils/supabase';
+import { supabase } from '~/utils/supabase';
+
+const dlt = require('../../assets/delete.png');
+const qr_logo = require('../../assets/qr_logo.png');
 
 interface QRData {
   link: string;
@@ -117,7 +118,7 @@ export default function HistoryScreen() {
         Alert.alert('Error', 'Something went wrong. Unable to open the link.');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to open the link.');
+      Alert.alert('Error', `Failed to open the link. ${error}`);
     }
   };
 

@@ -4,14 +4,14 @@ import { useRouter } from 'expo-router';
 import jsQR from 'jsqr';
 import { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, Alert, Platform } from 'react-native';
-import { validate as isUuid } from 'uuid';
 
-import closeImg from '../../assets/close.png';
-import flashImg from '../../assets/flash.png';
-import flipImg from '../../assets/flip.png';
-import imgImg from '../../assets/image.png';
-import scanImg from '../../assets/qr-code-scan.png';
 import { supabase } from '../../utils/supabase';
+
+const closeImg = require('../../assets/close.png');
+const flashImg = require('../../assets/flash.png');
+const flipImg = require('../../assets/flip.png');
+const imgImg = require('../../assets/image.png');
+const scanImg = require('../../assets/qr-code-scan.png');
 
 export default function Home() {
   const [facing, setFacing] = useState('back');

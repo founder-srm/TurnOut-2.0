@@ -1,3 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ChevronLeft } from 'lucide-react-native';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -9,11 +12,9 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ChevronLeft } from 'lucide-react-native';
-import qr_logo from '../../assets/qr_logo.png';
+
 import dlt from '../../assets/delete.png';
+import qr_logo from '../../assets/qr_logo.png';
 import { supabase } from '../../utils/supabase';
 
 interface QRData {
@@ -52,18 +53,18 @@ export default function HistoryScreen() {
       const storedData = await AsyncStorage.getItem('qrDataList');
       if (storedData) {
         const parsedData = JSON.parse(storedData);
-        
+
         // Fetch roll numbers for each registration
         const updatedData = await Promise.all(
           parsedData.map(async (item: QRData) => {
             const rollNumber = await fetchRegistrationDetails(item.link);
             return {
               ...item,
-              rollNumber: rollNumber || 'No Roll Number'
+              rollNumber: rollNumber || 'No Roll Number',
             };
           })
         );
-        
+
         setQrDataList(updatedData);
       }
     } catch (error) {
@@ -90,7 +91,7 @@ export default function HistoryScreen() {
         const newEntry = {
           link: qrLink as string,
           scanTime: scanTime as string,
-          rollNumber: rollNumber || 'No Roll Number'
+          rollNumber: rollNumber || 'No Roll Number',
         };
         const updatedData = [...qrDataList, newEntry];
         setQrDataList(updatedData);
@@ -139,9 +140,7 @@ export default function HistoryScreen() {
               <Image source={qr_logo} style={styles.qrLogo} />
               <View style={styles.qrDetails}>
                 <TouchableOpacity onPress={() => handleOpenLink(item.link)}>
-                  <Text style={styles.rollNumber}>
-                    {item.rollNumber}
-                  </Text>
+                  <Text style={styles.rollNumber}>{item.rollNumber}</Text>
                   <Text style={styles.qrTime}>Scanned At: {item.scanTime}</Text>
                 </TouchableOpacity>
               </View>

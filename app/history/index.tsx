@@ -33,7 +33,7 @@ export default function HistoryScreen() {
     try {
       const { data, error } = await supabase
         .from('eventsregistrations')
-        .select('details')
+        .select('*')
         .eq('id', registrationId)
         .single();
 
@@ -42,7 +42,7 @@ export default function HistoryScreen() {
         return null;
       }
 
-      return data?.details?.rollNumber || null;
+      return data?.application_id || null;
     } catch (error) {
       console.error('Error in fetchRegistrationDetails:', error);
       return null;

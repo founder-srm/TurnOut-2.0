@@ -1,4 +1,4 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { CameraType, CameraView, FlashMode, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import jsQR from 'jsqr';
@@ -14,11 +14,11 @@ const imgImg = require('../../assets/image.png');
 const scanImg = require('../../assets/qr-code-scan.png');
 
 export default function Home() {
-  const [facing, setFacing] = useState('back');
+  const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [image, setImage] = useState<string | null>(null);
   const [qrLink, setQrLink] = useState('');
-  const [flash, setFlash] = useState<'off' | 'torch'>('off');
+  const [flash, setFlash] = useState<FlashMode>('off');
   const router = useRouter();
   const [scanTime, setScanTime] = useState('');
   const [scanned, setScanned] = useState(false);
@@ -51,7 +51,7 @@ export default function Home() {
         await scanQRCodeFromImage(uri);
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to pick image from gallery');
+      Alert.alert('Error', `Failed to pick image from gallery ${error}`);
     }
   };
 
@@ -303,7 +303,7 @@ export default function Home() {
           }}
           style={{ position: 'absolute', width: '100%', height: '100%' }}
           facing={facing}
-          flashMode={flash}
+          flash={flash}
         />
       )}
 

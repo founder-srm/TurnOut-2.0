@@ -4,11 +4,11 @@ import type React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, StatusBar, Linking } from 'react-native';
 
-import Github from '../../assets/github.png';
-import Linkedin from '../../assets/linkedin.png';
-import SumanImage from '../../assets/suman.jpeg';
-import SuvanImage from '../../assets/suvan.jpeg';
-import VijayImage from '../../assets/vijay.jpeg';
+const Github = require('../../assets/github.png');
+const Linkedin = require('../../assets/linkedin.png');
+const SumanImage = require('../../assets/suman.jpeg');
+const SuvanImage = require('../../assets/suvan.jpeg');
+const VijayImage = require('../../assets/vijay.jpeg');
 
 interface DeveloperDetails {
   name: string;

@@ -27,9 +27,18 @@ export default function RootLayout() {
             presentation: 'fullScreenModal',
           }}
         />
-        <Stack.Screen name="developer" options={{ title: 'Developers' }} />
-        <Stack.Screen name="history" options={{ title: 'History' }} />
-        <Stack.Screen name="options" options={{ title: 'Options' }} />
+        <Stack.Screen
+          name="developer"
+          options={{ title: 'Developers', presentation: 'fullScreenModal' }}
+        />
+        <Stack.Screen
+          name="history"
+          options={{ title: 'History', presentation: 'fullScreenModal' }}
+        />
+        <Stack.Screen
+          name="options"
+          options={{ title: 'Options', presentation: 'fullScreenModal' }}
+        />
       </Stack>
     </GestureHandlerRootView>
   );

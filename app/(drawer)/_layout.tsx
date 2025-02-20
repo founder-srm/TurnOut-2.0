@@ -93,8 +93,8 @@ export default function TabLayout() {
         },
         tabBarLabel: () => null,
         tabBarIcon: ({ focused, color }) => {
-          const IconComponent = route.name === 'index' ? QrCode : MoreHorizontal;
-          const label = route.name === 'index' ? 'Scanner' : 'More';
+          const IconComponent = route.name === 'scanner' ? QrCode : MoreHorizontal;
+          const label = route.name === 'scanner' ? 'Scanner' : 'More';
           return (
             <AnimatedIcon
               focused={focused}
@@ -105,8 +105,8 @@ export default function TabLayout() {
           );
         },
       })}>
-      <Tabs.Screen name="index" options={{ title: 'Scanner' }} />
-      <Tabs.Screen name="(tabs)" options={{ title: 'More' }} />
+      <Tabs.Screen name="scanner" options={{ title: 'Scanner' }} />
+      <Tabs.Screen name="more" options={{ title: 'More' }} />
     </Tabs>
   );
 }

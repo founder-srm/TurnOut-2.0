@@ -1,3 +1,4 @@
+// app/(app)/attendance.tsx
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import React, { useState, useEffect } from 'react';
@@ -10,58 +11,89 @@ import {
   ActivityIndicator,
   ScrollView,
   RefreshControl,
+  Modal,
 } from 'react-native';
 
-import { supabase } from '../../utils/supabase';
+import { supabase } from '~/utils/supabase';
 
-const DEFAULT_EVENT_ID = '32d20028-3b40-41f5-b14f-bee9a993e046';
+type Event = {
+  id: string;
+  title: string;
+};
 
 type Registration = {
   id: string;
-  rollNumber: string;
-  fullName: string;
+  email: string;
   attendance: string;
   eventTitle: string;
 };
 
 export default function AttendanceScreen() {
   const router = useRouter();
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showEventPicker, setShowEventPicker] = useState(false);
 
   useEffect(() => {
-    fetchRegistrations();
+    fetchEvents();
   }, []);
 
+  useEffect(() => {
+    if (selectedEventId) {
+      fetchRegistrations();
+    }
+  }, [selectedEventId]);
+
+  const fetchEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, title')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setEvents(data);
+      if (data.length > 0) {
+        setSelectedEventId(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      Alert.alert('Error', 'Failed to load events. Please try again.');
+    }
+  };
+
   const fetchRegistrations = async () => {
+    if (!selectedEventId) return;
+
     try {
       setLoading(true);
-      console.log('Fetching registrations for event:', DEFAULT_EVENT_ID);
+      console.log('Fetching registrations for event:', selectedEventId);
 
       const { data, error } = await supabase
         .from('eventsregistrations')
-        .select('id, details, attendance, event_title')
-        .eq('event_id', DEFAULT_EVENT_ID)
+        .select('id, registration_email, attendance, event_title')
+        .eq('event_id', selectedEventId)
         .eq('is_approved', 'ACCEPTED')
-        .order('attendance', { ascending: false }); // Present first, then Absent
+        .order('attendance', { ascending: false });
 
       if (error) throw error;
 
       const formattedRegistrations = data.map((registration) => ({
         id: registration.id,
-        rollNumber: registration.details.rollNumber,
-        fullName: registration.details.fullName,
+        email: registration.registration_email,
         attendance: registration.attendance,
         eventTitle: registration.event_title,
       }));
 
-      // Sort by roll number within each attendance status
       formattedRegistrations.sort((a, b) => {
         if (a.attendance !== b.attendance) {
           return a.attendance === 'Present' ? -1 : 1;
         }
-        return a.rollNumber.localeCompare(b.rollNumber, undefined, { numeric: true });
+        return a.email.localeCompare(b.email);
       });
 
       setRegistrations(formattedRegistrations);
@@ -79,11 +111,7 @@ export default function AttendanceScreen() {
       const { error } = await supabase.rpc('mark_attendance', { registration_id: registrationId });
 
       if (error) throw error;
-
-      // Refresh the registrations list
       await fetchRegistrations();
-
-      // Show success message
       Alert.alert('Success', 'Attendance marked successfully');
     } catch (error) {
       console.error('Error marking attendance:', error);
@@ -92,6 +120,8 @@ export default function AttendanceScreen() {
   };
 
   const resetAttendance = async () => {
+    if (!selectedEventId) return;
+
     Alert.alert('Confirm Reset', 'Are you sure you want to reset attendance for all students?', [
       {
         text: 'Cancel',
@@ -104,18 +134,11 @@ export default function AttendanceScreen() {
           try {
             setLoading(true);
             const { error } = await supabase.rpc('reset_attendance', {
-              input_event_id: DEFAULT_EVENT_ID,
+              input_event_id: selectedEventId,
             });
 
-            if (error) {
-              console.error('Reset error:', error);
-              throw error;
-            }
-
-            // Refresh the registrations list
+            if (error) throw error;
             await fetchRegistrations();
-
-            // Show success message
             Alert.alert('Success', 'Attendance has been reset for all registrations');
           } catch (error) {
             console.error('Error resetting attendance:', error);
@@ -131,42 +154,42 @@ export default function AttendanceScreen() {
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     fetchRegistrations();
-  }, []);
+  }, [selectedEventId]);
 
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator
-          size="large"
-          color="#FDB623"
-          style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}
-        />
+        <ActivityIndicator size="large" color="#FDB623" style={styles.loader} />
       </View>
     );
   }
 
   const presentCount = registrations.filter((r) => r.attendance === 'Present').length;
+  const selectedEvent = events.find(event => event.id === selectedEventId);
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
       <View style={styles.backButtonContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ChevronLeft color="#FDB623" size={24} />
         </TouchableOpacity>
       </View>
 
-      {/* Title */}
-      <Text style={styles.title}>{registrations[0]?.eventTitle || 'Attendance'}</Text>
+      <TouchableOpacity 
+        style={styles.eventSelector} 
+        onPress={() => setShowEventPicker(true)}
+      >
+        <Text style={styles.eventSelectorText}>
+          {selectedEvent?.title || 'Select Event'}
+        </Text>
+      </TouchableOpacity>
 
-      {/* Stats */}
       <View style={styles.statsContainer}>
         <Text style={styles.statsText}>
           Present: {presentCount} / {registrations.length}
         </Text>
       </View>
 
-      {/* Student List */}
       <ScrollView
         style={styles.listContainer}
         contentContainerStyle={styles.scrollContent}
@@ -183,8 +206,7 @@ export default function AttendanceScreen() {
               ]}
               onPress={() => markAttendance(registration.id)}>
               <View style={styles.studentInfo}>
-                <Text style={styles.rollNumberText}>{registration.rollNumber}</Text>
-                <Text style={styles.nameText}>{registration.fullName}</Text>
+                <Text style={styles.emailText}>{registration.email}</Text>
               </View>
               <Text style={styles.statusText}>{registration.attendance}</Text>
             </TouchableOpacity>
@@ -194,10 +216,47 @@ export default function AttendanceScreen() {
         )}
       </ScrollView>
 
-      {/* Reset Button */}
       <TouchableOpacity style={styles.resetButton} onPress={resetAttendance}>
         <Text style={styles.resetButtonText}>Reset Attendance</Text>
       </TouchableOpacity>
+
+      <Modal
+        visible={showEventPicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowEventPicker(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Event</Text>
+            <ScrollView>
+              {events.map((event) => (
+                <TouchableOpacity
+                  key={event.id}
+                  style={styles.eventItem}
+                  onPress={() => {
+                    setSelectedEventId(event.id);
+                    setShowEventPicker(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.eventItemText,
+                    selectedEventId === event.id && styles.selectedEventText
+                  ]}>
+                    {event.title}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowEventPicker(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -208,6 +267,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333',
     alignItems: 'center',
     padding: 16,
+  },
+  loader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backButtonContainer: {
     position: 'absolute',
@@ -220,12 +284,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333',
     borderRadius: 5,
   },
-  title: {
+  eventSelector: {
     marginTop: 100,
     marginBottom: 16,
-    fontSize: 24,
-    fontWeight: 'bold',
+    padding: 12,
+    backgroundColor: '#444444',
+    borderRadius: 8,
+    width: '100%',
+  },
+  eventSelectorText: {
     color: '#FDB623',
+    fontSize: 20,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
   statsContainer: {
@@ -269,16 +339,6 @@ const styles = StyleSheet.create({
   studentInfo: {
     flex: 1,
   },
-  rollNumberText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  nameText: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    marginTop: 4,
-  },
   statusText: {
     color: '#FFFFFF',
     fontWeight: '500',
@@ -303,5 +363,56 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 16,
+  },
+  emailText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#FFFFFF',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#333333',
+    borderRadius: 12,
+    padding: 20,
+    width: '80%',
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FDB623',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  eventItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#444444',
+  },
+  eventItemText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+  },
+  selectedEventText: {
+    color: '#FDB623',
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    marginTop: 16,
+    backgroundColor: '#444444',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

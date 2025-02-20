@@ -15,13 +15,13 @@ import {
 
 import { supabase } from '~/utils/supabase';
 
-const dlt = require('../../assets/delete.png');
-const qr_logo = require('../../assets/qr_logo.png');
+const dlt = require('../assets/delete.png');
+const qr_logo = require('../assets/qr_logo.png');
 
 interface QRData {
   link: string;
   scanTime: string;
-  rollNumber?: string;
+  email?: string;
 }
 
 export default function HistoryScreen() {
@@ -33,7 +33,7 @@ export default function HistoryScreen() {
     try {
       const { data, error } = await supabase
         .from('eventsregistrations')
-        .select('*')
+        .select('registration_email')
         .eq('id', registrationId)
         .single();
 
@@ -42,7 +42,7 @@ export default function HistoryScreen() {
         return null;
       }
 
-      return data?.application_id || null;
+      return data?.registration_email || null;
     } catch (error) {
       console.error('Error in fetchRegistrationDetails:', error);
       return null;
@@ -55,13 +55,13 @@ export default function HistoryScreen() {
       if (storedData) {
         const parsedData = JSON.parse(storedData);
 
-        // Fetch roll numbers for each registration
+        // Fetch emails for each registration
         const updatedData = await Promise.all(
           parsedData.map(async (item: QRData) => {
-            const rollNumber = await fetchRegistrationDetails(item.link);
+            const email = await fetchRegistrationDetails(item.link);
             return {
               ...item,
-              rollNumber: rollNumber || 'No Roll Number',
+              email: email || 'No Email Found',
             };
           })
         );
@@ -88,11 +88,11 @@ export default function HistoryScreen() {
   useEffect(() => {
     const updateQRList = async () => {
       if (qrLink && scanTime && !qrDataList.some((item) => item.link === qrLink)) {
-        const rollNumber = await fetchRegistrationDetails(qrLink as string);
+        const email = await fetchRegistrationDetails(qrLink as string);
         const newEntry = {
           link: qrLink as string,
           scanTime: scanTime as string,
-          rollNumber: rollNumber || 'No Roll Number',
+          email: email || 'No Email Found',
         };
         const updatedData = [...qrDataList, newEntry];
         setQrDataList(updatedData);
@@ -104,9 +104,25 @@ export default function HistoryScreen() {
   }, [qrLink, scanTime, qrDataList]);
 
   const handleDelete = (indexToDelete: number) => {
-    const updatedData = qrDataList.filter((_, index) => index !== indexToDelete);
-    setQrDataList(updatedData);
-    saveQrData(updatedData);
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this scan history?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            const updatedData = qrDataList.filter((_, index) => index !== indexToDelete);
+            setQrDataList(updatedData);
+            saveQrData(updatedData);
+          },
+        },
+      ]
+    );
   };
 
   const handleOpenLink = async (url: string) => {
@@ -130,7 +146,7 @@ export default function HistoryScreen() {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>History</Text>
+      <Text style={styles.title}>Scan History</Text>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {qrDataList.length === 0 ? (
@@ -141,11 +157,16 @@ export default function HistoryScreen() {
               <Image source={qr_logo} style={styles.qrLogo} />
               <View style={styles.qrDetails}>
                 <TouchableOpacity onPress={() => handleOpenLink(item.link)}>
-                  <Text style={styles.rollNumber}>{item.rollNumber}</Text>
+                  <Text style={styles.emailText} numberOfLines={1} ellipsizeMode="tail">
+                    {item.email}
+                  </Text>
                   <Text style={styles.qrTime}>Scanned At: {item.scanTime}</Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => handleDelete(index)}>
+              <TouchableOpacity 
+                onPress={() => handleDelete(index)}
+                style={styles.deleteButton}
+              >
                 <Image source={dlt} style={styles.deleteIcon} />
               </TouchableOpacity>
             </View>
@@ -212,15 +233,19 @@ const styles = StyleSheet.create({
   qrDetails: {
     flex: 1,
     marginLeft: 10,
+    marginRight: 10,
   },
-  rollNumber: {
+  emailText: {
     color: '#D9D9D9',
-    fontSize: 17,
+    fontSize: 16,
   },
   qrTime: {
     color: '#A4A4A4',
     fontSize: 11,
     marginTop: 5,
+  },
+  deleteButton: {
+    padding: 5,
   },
   deleteIcon: {
     height: 24,

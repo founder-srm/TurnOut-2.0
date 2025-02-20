@@ -8,7 +8,7 @@ import { Animated, View, Text, Pressable, StatusBar, Image } from 'react-native'
 
 const options = [
   { name: 'History', icon: History, route: '/history' },
-  { name: 'Attendance', icon: User, route: '/attendence' },
+  { name: 'Attendance', icon: User, route: '/attendance' },
   { name: 'Settings', icon: Settings, route: '/options' },
   { name: 'Developers', icon: Code, route: '/developer' },
 ];
@@ -63,7 +63,7 @@ export default function QRGeneratorScreen() {
 
       <View className="relative flex-1 px-6 pt-4">
         <Image
-          source={require('../../../assets/Vector 11.png')}
+          source={require('../../assets/Vector 11.png')}
           className="absolute bottom-0 h-[400px] w-[500px] px-0 pt-0"
           style={{
             transform: [{ scaleX: -1 }],

@@ -13,7 +13,7 @@ const flipImg = require('../../assets/flip.png');
 const imgImg = require('../../assets/image.png');
 const scanImg = require('../../assets/qr-code-scan.png');
 
-export default function Home() {
+export default function Scanner() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [image, setImage] = useState<string | null>(null);

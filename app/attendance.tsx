@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import {
   Text,
@@ -11,6 +12,7 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
+import { ArrowLeft } from 'lucide-react-native';
 
 import type { Database } from '~/database.types';
 import { supabase } from '~/utils/supabase';
@@ -178,15 +180,22 @@ export default function AttendanceScreen() {
 
   return (
     <View style={styles.container}>
-      {/* New Search Bar */}
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search emails..."
-        placeholderTextColor="#AAAAAA"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
+      <View style={styles.headerContainer}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.back()}
+        >
+          <ArrowLeft size={24} color="#FDB623" />
+        </TouchableOpacity>
 
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search emails..."
+          placeholderTextColor="#AAAAAA"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
       <TouchableOpacity style={styles.eventSelector} onPress={() => setShowEventPicker(true)}>
         <Text style={styles.eventSelectorText}>{selectedEvent?.title || 'Select Event'}</Text>
       </TouchableOpacity>
@@ -271,8 +280,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#333333',
-    alignItems: 'center',
     padding: 16,
+  },
+  headerContainer: {
+    gap: 12,
+    marginTop:15,
+  },
+  backButton: {
+    backgroundColor: '#444444',
+    padding: 8,
+    borderRadius: 8,
+    width:60,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loader: {
     flex: 1,
@@ -411,7 +431,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
-    marginTop: 20,
+    marginTop: 10,
     marginBottom: 10,
     color: '#FFFFFF',
     backgroundColor: '#333333',

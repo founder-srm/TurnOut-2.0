@@ -311,6 +311,13 @@ export type Database = {
         };
         Returns: undefined;
       };
+      toggle_attendance: {
+        Args: {
+          registration_id: string;
+          new_attendance: Database['public']['Enums']['attendance'];
+        };
+        Returns: string;
+      };
     };
     Enums: {
       attendance: 'Present' | 'Absent';

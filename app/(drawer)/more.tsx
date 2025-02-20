@@ -6,7 +6,11 @@ import { History, Settings, Code, ScanQrCode, User } from 'lucide-react-native';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Animated, View, Text, Pressable, StatusBar, Image } from 'react-native';
 
-const options = [
+const options: {
+  name: string;
+  icon: any;
+  route: '/history' | '/attendance' | '/options' | '/developer';
+}[] = [
   { name: 'History', icon: History, route: '/history' },
   { name: 'Attendance', icon: User, route: '/attendance' },
   { name: 'Settings', icon: Settings, route: '/options' },
@@ -35,10 +39,6 @@ export default function QRGeneratorScreen() {
     }
   }, [isVisible, animationValue]);
 
-  const handleNavigation = (route: string) => {
-    router.push(route as any);
-  };
-
   const animatedStyle = {
     transform: [
       {
@@ -55,7 +55,7 @@ export default function QRGeneratorScreen() {
           <Text className="text-3xl font-bold text-white">TurnOut</Text>
           <Pressable
             className="rounded-full bg-[#444] p-3 active:bg-[#555]"
-            onPress={() => handleNavigation('/scan')}>
+            onPress={() => router.push('/(drawer)/scanner')}>
             <ScanQrCode color="#FDB623" size={24} />
           </Pressable>
         </View>
@@ -92,7 +92,7 @@ export default function QRGeneratorScreen() {
             className="mb-4 mt-5">
             <Pressable
               className="rounded-md bg-[#444] shadow-lg active:bg-[#555]"
-              onPress={() => handleNavigation(route)}
+              onPress={() => router.push(route)}
               style={({ pressed }) => [
                 {
                   transform: [{ scale: pressed ? 0.98 : 1 }],

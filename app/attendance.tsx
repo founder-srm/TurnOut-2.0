@@ -12,7 +12,10 @@ import {
   ScrollView,
   RefreshControl,
   Modal,
+  TextInput
 } from 'react-native';
+
+import type { Database } from '~/database.types';
 
 import { supabase } from '~/utils/supabase';
 
@@ -24,18 +27,18 @@ type Event = {
 type Registration = {
   id: string;
   email: string;
-  attendance: string;
+  attendance: Database['public']['Tables']['eventsregistrations']['Update']['attendance'];
   eventTitle: string;
 };
 
 export default function AttendanceScreen() {
-  const router = useRouter();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showEventPicker, setShowEventPicker] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchEvents();
@@ -106,16 +109,21 @@ export default function AttendanceScreen() {
     }
   };
 
-  const markAttendance = async (registrationId: string) => {
+  const toggleAttendance = async (registration: Registration) => {
     try {
-      const { error } = await supabase.rpc('mark_attendance', { registration_id: registrationId });
-
+      const newAttendance = registration.attendance === 'Present' ? 'Absent' : 'Present';
+      // Await and get return data and error from the RPC call
+      const { data, error } = await supabase.rpc('toggle_attendance', {
+        registration_id: registration.id,
+        new_attendance: newAttendance,
+      });
       if (error) throw error;
+      console.log('toggle_attendance returned:', data);
       await fetchRegistrations();
-      Alert.alert('Success', 'Attendance marked successfully');
+      Alert.alert('Success', `Attendance marked as ${newAttendance}`);
     } catch (error) {
-      console.error('Error marking attendance:', error);
-      Alert.alert('Error', 'Failed to mark attendance. Please try again.');
+      console.error('Error toggling attendance:', error);
+      Alert.alert('Error', 'Failed to toggle attendance. Please try again.');
     }
   };
 
@@ -156,6 +164,11 @@ export default function AttendanceScreen() {
     fetchRegistrations();
   }, [selectedEventId]);
 
+  // Create filtered list based on email search
+  const filteredRegistrations = registrations.filter((registration) =>
+    registration.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -164,16 +177,19 @@ export default function AttendanceScreen() {
     );
   }
 
-  const presentCount = registrations.filter((r) => r.attendance === 'Present').length;
+  const presentCount = filteredRegistrations.filter((r) => r.attendance === 'Present').length;
   const selectedEvent = events.find((event) => event.id === selectedEventId);
 
   return (
     <View style={styles.container}>
-      <View style={styles.backButtonContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ChevronLeft color="#FDB623" size={24} />
-        </TouchableOpacity>
-      </View>
+      {/* New Search Bar */}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search emails..."
+        placeholderTextColor="#AAAAAA"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
 
       <TouchableOpacity style={styles.eventSelector} onPress={() => setShowEventPicker(true)}>
         <Text style={styles.eventSelectorText}>{selectedEvent?.title || 'Select Event'}</Text>
@@ -181,7 +197,7 @@ export default function AttendanceScreen() {
 
       <View style={styles.statsContainer}>
         <Text style={styles.statsText}>
-          Present: {presentCount} / {registrations.length}
+          Present: {presentCount} / {filteredRegistrations.length}
         </Text>
       </View>
 
@@ -191,15 +207,18 @@ export default function AttendanceScreen() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FDB623" />
         }>
-        {registrations.length > 0 ? (
-          registrations.map((registration) => (
+        {filteredRegistrations.length > 0 ? (
+          filteredRegistrations.map((registration) => (
             <TouchableOpacity
               key={registration.id}
               style={[
                 styles.studentItem,
-                { backgroundColor: registration.attendance === 'Present' ? '#34D399' : '#F87171' },
+                {
+                  borderColor: registration.attendance === 'Present' ? '#34D399' : '#F87171',
+                  borderWidth: 2,
+                },
               ]}
-              onPress={() => markAttendance(registration.id)}>
+              onPress={() => toggleAttendance(registration)}>
               <View style={styles.studentInfo}>
                 <Text style={styles.emailText}>{registration.email}</Text>
               </View>
@@ -264,19 +283,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backButtonContainer: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    zIndex: 10,
-  },
-  backButton: {
-    padding: 10,
-    backgroundColor: '#333333',
-    borderRadius: 5,
-  },
   eventSelector: {
-    marginTop: 100,
+    marginTop: 20,
     marginBottom: 16,
     padding: 12,
     backgroundColor: '#444444',
@@ -313,19 +321,13 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 12,
     paddingHorizontal: 16,
+    backgroundColor: '#333333',
     marginBottom: 10,
     borderRadius: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
   studentInfo: {
     flex: 1,
@@ -405,5 +407,17 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  searchBar: {
+    height: 40,
+    width: '100%',
+    borderColor: '#444444',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#FFFFFF',
+    backgroundColor: '#333333'
   },
 });

@@ -17,12 +17,12 @@ export default function Scanner() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [image, setImage] = useState<string | null>(null);
-  const [qrLink, setQrLink] = useState('');
+  // const [qrLink, setQrLink] = useState('');
   const [flash, setFlash] = useState<FlashMode>('off');
   const router = useRouter();
-  const [scanTime, setScanTime] = useState('');
+  // const [scanTime, setScanTime] = useState('');
   const [scanned, setScanned] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
+  // const [showOptions, setShowOptions] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const isScanning = useRef(false);
@@ -124,7 +124,7 @@ export default function Scanner() {
       setLoading(true);
       const currentTime = new Date();
       const formattedTime = currentTime.toLocaleString();
-      setScanTime(formattedTime);
+      // setScanTime(formattedTime);
 
       console.log('Attempting to mark attendance for ID:', qrData);
 
@@ -224,7 +224,7 @@ export default function Scanner() {
         return;
       }
 
-      setShowOptions(true);
+      // setShowOptions(true);
       Alert.alert(
         'Success',
         `Attendance marked successfully for ${existingReg.event_title} at ${formattedTime}`,
@@ -245,7 +245,7 @@ export default function Scanner() {
             text: 'Scan Another',
             onPress: () => {
               setScanned(false);
-              setShowOptions(false);
+              // setShowOptions(false);
             },
           },
         ],
@@ -322,7 +322,7 @@ export default function Scanner() {
           className="flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400"
           onPress={() => {
             setScanned(false);
-            setShowOptions(false);
+            // setShowOptions(false);
           }}
           disabled={loading}>
           <Image source={scanImg} style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }} />
@@ -355,7 +355,7 @@ export default function Scanner() {
             onPress={() => {
               setImage(null);
               setScanned(false);
-              setShowOptions(false);
+              // setShowOptions(false);
             }}
             disabled={loading}>
             <Image

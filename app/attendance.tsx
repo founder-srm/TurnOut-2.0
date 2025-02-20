@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     gap: 12,
-    marginTop:15,
+    marginTop: 15,
   },
   loader: {
     flex: 1,

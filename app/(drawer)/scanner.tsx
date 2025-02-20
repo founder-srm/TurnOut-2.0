@@ -1,4 +1,10 @@
-import { CameraType, CameraView, FlashMode, useCameraPermissions } from 'expo-camera';
+import {
+  BarcodeScanningResult,
+  CameraType,
+  CameraView,
+  FlashMode,
+  useCameraPermissions,
+} from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import jsQR from 'jsqr';
@@ -260,16 +266,13 @@ export default function Scanner() {
     }
   };
 
-  const handleBarCodeScanned = async ({ data }: { data: string }) => {
+  const handleBarCodeScanned = async (scanningResult: BarcodeScanningResult) => {
     if (isScanning.current || scanned) return;
-
-    try {
-      isScanning.current = true;
-      setScanned(true);
-      await markAttendance(data);
-    } finally {
-      isScanning.current = false;
-    }
+    const { data } = scanningResult;
+    isScanning.current = true;
+    setScanned(true);
+    await markAttendance(data);
+    isScanning.current = false;
   };
 
   const toggleCameraFacing = () => {

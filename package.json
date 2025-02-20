@@ -27,6 +27,7 @@
     "expo-camera": "^16.0.14",
     "expo-constants": "~16.0.1",
     "expo-dev-client": "~5.0.4",
+    "expo-image": "~2.0.6",
     "expo-image-manipulator": "~13.0.6",
     "expo-image-picker": "^16.0.4",
     "expo-linking": "~6.3.1",

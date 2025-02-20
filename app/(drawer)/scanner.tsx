@@ -5,11 +5,13 @@ import {
   FlashMode,
   useCameraPermissions,
 } from 'expo-camera';
+import { Image as ExpoImage } from 'expo-image';
+import { manipulateAsync } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import jsQR from 'jsqr';
 import { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Platform } from 'react-native';
 
 import { supabase } from '../../utils/supabase';
 
@@ -70,36 +72,25 @@ export default function Scanner() {
       setImage(null);
       return;
     }
-
     try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-
+      // Use manipulateAsync to obtain base64 data
+      const result = await manipulateAsync(uri, [], { base64: true });
+      if (!result.base64) throw new Error('Failed to extract base64 data');
       return new Promise((resolve, reject) => {
         const img = new Image();
-        const fileReader = new FileReader();
-
-        fileReader.onload = () => {
-          img.src = fileReader.result as string;
-        };
-
         img.onload = () => {
           const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
           const ctx = canvas.getContext('2d');
           if (!ctx) {
             reject(new Error('Failed to get canvas context'));
             return;
           }
-
-          canvas.width = img.width;
-          canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
-
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const qrCode = jsQR(imageData.data, canvas.width, canvas.height);
-
           if (qrCode) {
-            setQrLink(qrCode.data);
             markAttendance(qrCode.data);
             resolve(qrCode.data);
           } else {
@@ -110,12 +101,8 @@ export default function Scanner() {
             reject(new Error('No QR code found'));
           }
         };
-
-        img.onerror = () => {
-          reject(new Error('Failed to load image'));
-        };
-
-        fileReader.readAsDataURL(blob);
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = `data:image/jpeg;base64,${result.base64}`;
       });
     } catch (error) {
       Alert.alert('Error', 'Failed to process image');
@@ -328,31 +315,43 @@ export default function Scanner() {
             // setShowOptions(false);
           }}
           disabled={loading}>
-          <Image source={scanImg} style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }} />
+          <ExpoImage
+            source={scanImg}
+            style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           className="flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400"
           onPress={toggleCameraFacing}
           disabled={loading}>
-          <Image source={flipImg} style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }} />
+          <ExpoImage
+            source={flipImg}
+            style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           className="flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400"
           onPress={toggleFlash}
           disabled={loading}>
-          <Image source={flashImg} style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }} />
+          <ExpoImage
+            source={flashImg}
+            style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           className="flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400"
           onPress={pickImage}
           disabled={loading}>
-          <Image source={imgImg} style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }} />
+          <ExpoImage
+            source={imgImg}
+            style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }}
+          />
         </TouchableOpacity>
       </View>
 
       {image && (
         <View className="flex h-full w-full items-center justify-center">
-          <Image source={{ uri: image }} style={{ width: '100%', height: '105%' }} />
+          <ExpoImage source={{ uri: image }} style={{ width: '100%', height: '105%' }} />
           <TouchableOpacity
             className="absolute right-5 top-5 rounded-full border-yellow-400 bg-gray-200 p-2"
             onPress={() => {
@@ -361,7 +360,7 @@ export default function Scanner() {
               // setShowOptions(false);
             }}
             disabled={loading}>
-            <Image
+            <ExpoImage
               source={closeImg}
               style={{ height: 50, width: 50, opacity: loading ? 0.5 : 1 }}
             />

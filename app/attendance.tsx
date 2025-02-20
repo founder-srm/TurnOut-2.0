@@ -1,6 +1,3 @@
-// app/(app)/attendance.tsx
-import { useRouter } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import React, { useState, useEffect } from 'react';
 import {
   Text,
@@ -12,11 +9,10 @@ import {
   ScrollView,
   RefreshControl,
   Modal,
-  TextInput
+  TextInput,
 } from 'react-native';
 
 import type { Database } from '~/database.types';
-
 import { supabase } from '~/utils/supabase';
 
 type Event = {
@@ -418,6 +414,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
     color: '#FFFFFF',
-    backgroundColor: '#333333'
+    backgroundColor: '#333333',
   },
 });

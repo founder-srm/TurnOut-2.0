@@ -165,7 +165,7 @@ export default function AttendanceScreen() {
   }
 
   const presentCount = registrations.filter((r) => r.attendance === 'Present').length;
-  const selectedEvent = events.find(event => event.id === selectedEventId);
+  const selectedEvent = events.find((event) => event.id === selectedEventId);
 
   return (
     <View style={styles.container}>
@@ -175,13 +175,8 @@ export default function AttendanceScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        style={styles.eventSelector} 
-        onPress={() => setShowEventPicker(true)}
-      >
-        <Text style={styles.eventSelectorText}>
-          {selectedEvent?.title || 'Select Event'}
-        </Text>
+      <TouchableOpacity style={styles.eventSelector} onPress={() => setShowEventPicker(true)}>
+        <Text style={styles.eventSelectorText}>{selectedEvent?.title || 'Select Event'}</Text>
       </TouchableOpacity>
 
       <View style={styles.statsContainer}>
@@ -222,10 +217,9 @@ export default function AttendanceScreen() {
 
       <Modal
         visible={showEventPicker}
-        transparent={true}
+        transparent
         animationType="slide"
-        onRequestClose={() => setShowEventPicker(false)}
-      >
+        onRequestClose={() => setShowEventPicker(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Event</Text>
@@ -237,21 +231,18 @@ export default function AttendanceScreen() {
                   onPress={() => {
                     setSelectedEventId(event.id);
                     setShowEventPicker(false);
-                  }}
-                >
-                  <Text style={[
-                    styles.eventItemText,
-                    selectedEventId === event.id && styles.selectedEventText
-                  ]}>
+                  }}>
+                  <Text
+                    style={[
+                      styles.eventItemText,
+                      selectedEventId === event.id && styles.selectedEventText,
+                    ]}>
                     {event.title}
                   </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShowEventPicker(false)}
-            >
+            <TouchableOpacity style={styles.closeButton} onPress={() => setShowEventPicker(false)}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>

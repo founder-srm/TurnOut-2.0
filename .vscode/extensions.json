@@ -1,9 +1,9 @@
 {
-    "recommendations": [
-        "pandy.bun",
-        "oven.bun-vscode",
-        "dsznajder.es7-react-js-snippets",
-        "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss"
-    ]
+  "recommendations": [
+    "pandy.bun",
+    "oven.bun-vscode",
+    "dsznajder.es7-react-js-snippets",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss"
+  ]
 }

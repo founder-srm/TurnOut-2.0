@@ -104,25 +104,21 @@ export default function HistoryScreen() {
   }, [qrLink, scanTime, qrDataList]);
 
   const handleDelete = (indexToDelete: number) => {
-    Alert.alert(
-      'Confirm Delete',
-      'Are you sure you want to delete this scan history?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
+    Alert.alert('Confirm Delete', 'Are you sure you want to delete this scan history?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          const updatedData = qrDataList.filter((_, index) => index !== indexToDelete);
+          setQrDataList(updatedData);
+          saveQrData(updatedData);
         },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            const updatedData = qrDataList.filter((_, index) => index !== indexToDelete);
-            setQrDataList(updatedData);
-            saveQrData(updatedData);
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleOpenLink = async (url: string) => {
@@ -163,10 +159,7 @@ export default function HistoryScreen() {
                   <Text style={styles.qrTime}>Scanned At: {item.scanTime}</Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity 
-                onPress={() => handleDelete(index)}
-                style={styles.deleteButton}
-              >
+              <TouchableOpacity onPress={() => handleDelete(index)} style={styles.deleteButton}>
                 <Image source={dlt} style={styles.deleteIcon} />
               </TouchableOpacity>
             </View>

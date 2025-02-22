@@ -6,109 +6,27 @@ import {
   useCameraPermissions,
 } from 'expo-camera';
 import { Image as ExpoImage } from 'expo-image';
-import { manipulateAsync } from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import jsQR from 'jsqr';
-import { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert, Platform } from 'react-native';
+import { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 
 import { supabase } from '../../utils/supabase';
 
 const closeImg = require('../../assets/close.png');
 const flashImg = require('../../assets/flash.png');
 const flipImg = require('../../assets/flip.png');
-const imgImg = require('../../assets/image.png');
 const scanImg = require('../../assets/qr-code-scan.png');
 
 export default function Scanner() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [image, setImage] = useState<string | null>(null);
-  // const [qrLink, setQrLink] = useState('');
   const [flash, setFlash] = useState<FlashMode>('off');
   const router = useRouter();
-  // const [scanTime, setScanTime] = useState('');
   const [scanned, setScanned] = useState(false);
-  // const [showOptions, setShowOptions] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const isScanning = useRef(false);
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Camera permission is required for scanning QR codes');
-      }
-    })();
-  }, []);
-
-  const pickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        const uri = result.assets[0].uri;
-        setImage(uri);
-        await scanQRCodeFromImage(uri);
-      }
-    } catch (error) {
-      Alert.alert('Error', `Failed to pick image from gallery ${error}`);
-    }
-  };
-
-  const scanQRCodeFromImage = async (uri: string) => {
-    if (Platform.OS !== 'web') {
-      Alert.alert(
-        'Feature not available',
-        'QR scanning from gallery is only available on web platform'
-      );
-      setImage(null);
-      return;
-    }
-    try {
-      // Use manipulateAsync to obtain base64 data
-      const result = await manipulateAsync(uri, [], { base64: true });
-      if (!result.base64) throw new Error('Failed to extract base64 data');
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Failed to get canvas context'));
-            return;
-          }
-          ctx.drawImage(img, 0, 0);
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const qrCode = jsQR(imageData.data, canvas.width, canvas.height);
-          if (qrCode) {
-            markAttendance(qrCode.data);
-            resolve(qrCode.data);
-          } else {
-            Alert.alert(
-              'No QR Code Found',
-              'Please try another image or scan directly with camera'
-            );
-            reject(new Error('No QR code found'));
-          }
-        };
-        img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = `data:image/jpeg;base64,${result.base64}`;
-      });
-    } catch (error) {
-      Alert.alert('Error', 'Failed to process image');
-      console.error('Error scanning QR code:', error);
-    }
-  };
 
   const markAttendance = async (qrData: string) => {
     if (loading) return;
@@ -216,8 +134,6 @@ export default function Scanner() {
         setScanned(false);
         return;
       }
-
-      // setShowOptions(true);
       Alert.alert(
         'Success',
         `Attendance marked successfully for ${existingReg.event_title} at ${formattedTime}`,
@@ -238,7 +154,6 @@ export default function Scanner() {
             text: 'Scan Another',
             onPress: () => {
               setScanned(false);
-              // setShowOptions(false);
             },
           },
         ],
@@ -293,7 +208,8 @@ export default function Scanner() {
           }}
           style={{ position: 'absolute', width: '100%', height: '100%' }}
           facing={facing}
-          flash={flash}
+          enableTorch={flash === 'on'}
+          ratio="16:9"
         />
       )}
 
@@ -312,7 +228,6 @@ export default function Scanner() {
           className="flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400"
           onPress={() => {
             setScanned(false);
-            // setShowOptions(false);
           }}
           disabled={loading}>
           <ExpoImage
@@ -338,15 +253,6 @@ export default function Scanner() {
             style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }}
           />
         </TouchableOpacity>
-        <TouchableOpacity
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400"
-          onPress={pickImage}
-          disabled={loading}>
-          <ExpoImage
-            source={imgImg}
-            style={{ height: 30, width: 30, opacity: loading ? 0.5 : 1 }}
-          />
-        </TouchableOpacity>
       </View>
 
       {image && (
@@ -357,7 +263,6 @@ export default function Scanner() {
             onPress={() => {
               setImage(null);
               setScanned(false);
-              // setShowOptions(false);
             }}
             disabled={loading}>
             <ExpoImage

@@ -137,7 +137,7 @@ export default function Home() {
                 className="mt-12 flex-row items-center rounded-xl bg-[#FDB623] px-[86px] py-3"
                 activeOpacity={0.8}
                 onPress={() => router.push('/(drawer)/scanner')}>
-                <Text className="mr-2 font-bold text-black">Let’s Start</Text>
+                <Text className="mr-2 font-bold text-black">Let's Start</Text>
                 <Text className="text-lg text-black">→</Text>
               </TouchableOpacity>
             </MotiView>

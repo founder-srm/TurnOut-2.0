@@ -4,8 +4,6 @@ import type React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, StatusBar, Linking } from 'react-native';
 
-// const Github = require('../assets/github.png');
-// const Linkedin = require('../assets/linkedin.png');
 const SumanImage = require('../assets/suman.jpeg');
 const SuvanImage = require('../assets/suvan.jpeg');
 const VijayImage = require('../assets/vijay.jpeg');

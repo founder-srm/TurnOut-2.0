@@ -24,7 +24,7 @@ SplashScreen.setOptions({
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '/(drawer)/scanner',
+  initialRouteName: 'index',
 };
 
 export default function RootLayout() {
@@ -75,7 +75,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <Stack initialRouteName="(drawer)/scanner" screenOptions={{ headerShown: false }}>
+      <Stack initialRouteName="index" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" options={{ title: 'Home' }} />
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen

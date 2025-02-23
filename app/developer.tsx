@@ -1,11 +1,9 @@
 import { useRouter } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Github, Linkedin } from 'lucide-react-native';
 import type React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, StatusBar, Linking } from 'react-native';
 
-const Github = require('../assets/github.png');
-const Linkedin = require('../assets/linkedin.png');
 const SumanImage = require('../assets/suman.jpeg');
 const SuvanImage = require('../assets/suvan.jpeg');
 const VijayImage = require('../assets/vijay.jpeg');
@@ -52,10 +50,10 @@ const DeveloperCard: React.FC<DeveloperDetails> = ({
           <Text className="px-2 text-center text-sm text-white">{details}</Text>
           <View className="mt-4 flex-row justify-center">
             <TouchableOpacity onPress={() => Linking.openURL(gitHub)}>
-              <Image source={Github} className="mx-3 h-[50px] w-[50px]" resizeMode="contain" />
+              <Github className="mx-3 h-[50px] w-[50px]" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => Linking.openURL(linkDin)}>
-              <Image source={Linkedin} className="mx-3 h-[50px] w-[50px]" resizeMode="contain" />
+              <Linkedin className="mx-3 h-[50px] w-[50px]" />
             </TouchableOpacity>
           </View>
           <TouchableOpacity

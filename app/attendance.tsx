@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import {
   Text,
@@ -12,8 +11,8 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
 
+import BackButton from '~/components/BackButton';
 import type { Database } from '~/database.types';
 import { supabase } from '~/utils/supabase';
 
@@ -181,12 +180,7 @@ export default function AttendanceScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => router.back()}
-        >
-          <ArrowLeft size={24} color="#FDB623" />
-        </TouchableOpacity>
+        <BackButton />
 
         <TextInput
           style={styles.searchBar}
@@ -284,15 +278,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     gap: 12,
-    marginTop:15,
-  },
-  backButton: {
-    backgroundColor: '#444444',
-    padding: 8,
-    borderRadius: 8,
-    width:60,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginTop: 15,
   },
   loader: {
     flex: 1,

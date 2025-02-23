@@ -77,7 +77,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <Stack initialRouteName="index" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" options={{ title: 'Home' }} />
-        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="attendance"
           options={{

@@ -105,8 +105,8 @@ export default function TabLayout() {
           );
         },
       })}>
-      <Tabs.Screen name="scanner" options={{ title: 'Scanner' }} />
-      <Tabs.Screen name="more" options={{ title: 'More' }} />
+      <Tabs.Screen name="scanner" options={{ href: '/scanner', title: 'Scanner' }} />
+      <Tabs.Screen name="more" options={{ href: '/more', title: 'More' }} />
     </Tabs>
   );
 }

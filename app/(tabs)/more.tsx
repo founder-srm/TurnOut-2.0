@@ -55,7 +55,7 @@ export default function QRGeneratorScreen() {
           <Text className="text-3xl font-bold text-white">TurnOut</Text>
           <Pressable
             className="rounded-full bg-[#444] p-3 active:bg-[#555]"
-            onPress={() => router.push('/(drawer)/scanner')}>
+            onPress={() => router.push('/scanner')}>
             <ScanQrCode color="#FDB623" size={24} />
           </Pressable>
         </View>

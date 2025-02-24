@@ -6,7 +6,6 @@ import {
   useCameraPermissions,
 } from 'expo-camera';
 import { Image as ExpoImage } from 'expo-image';
-import { useRouter } from 'expo-router';
 import { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 
@@ -22,7 +21,6 @@ export default function Scanner() {
   const [permission, requestPermission] = useCameraPermissions();
   const [image, setImage] = useState<string | null>(null);
   const [flash, setFlash] = useState<FlashMode>('off');
-  const router = useRouter();
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -138,18 +136,6 @@ export default function Scanner() {
         'Success',
         `Attendance marked successfully for ${existingReg.event_title} at ${formattedTime}`,
         [
-          {
-            text: 'View History',
-            onPress: () =>
-              router.push({
-                pathname: '/history',
-                params: {
-                  qrLink: qrData,
-                  scanTime: formattedTime,
-                  eventTitle: existingReg.event_title,
-                },
-              }),
-          },
           {
             text: 'Scan Another',
             onPress: () => {

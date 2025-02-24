@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import { AnimatePresence, MotiView } from 'moti';
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TouchableOpacity } from 'react-native';
+import { Text, View, Image, TouchableOpacity, ToastAndroid } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 export default function NotFoundScreen() {
@@ -101,7 +101,10 @@ export default function NotFoundScreen() {
                 <TouchableOpacity
                   className="mt-12 flex-row items-center rounded-xl bg-[#FDB623] px-[86px] py-3"
                   activeOpacity={0.8}
-                  onPress={() => router.push('/more')}>
+                  onPress={() => {
+                    ToastAndroid.show('Routing to tabs', ToastAndroid.SHORT);
+                    router.push('/(tabs)/more');
+                  }}>
                   <Text className="mr-2 font-bold text-black">Let's Start</Text>
                   <Text className="text-lg text-black">→</Text>
                 </TouchableOpacity>

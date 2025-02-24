@@ -2,20 +2,9 @@
 
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { History, Settings, Code, ScanQrCode, User } from 'lucide-react-native';
+import { ScanQrCode } from 'lucide-react-native';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Animated, View, Text, Pressable, StatusBar, Image } from 'react-native';
-
-const options: {
-  name: string;
-  icon: any;
-  route: '/history' | '/attendance' | '/options' | '/developer';
-}[] = [
-  { name: 'History', icon: History, route: '/history' },
-  { name: 'Attendance', icon: User, route: '/attendance' },
-  { name: 'Settings', icon: Settings, route: '/options' },
-  { name: 'Developers', icon: Code, route: '/developer' },
-];
 
 export default function QRGeneratorScreen() {
   const [isVisible, setIsVisible] = useState(false);
@@ -39,13 +28,13 @@ export default function QRGeneratorScreen() {
     }
   }, [isVisible, animationValue]);
 
-  const animatedStyle = {
-    transform: [
-      {
-        scale: animationValue,
-      },
-    ],
-  };
+  // const animatedStyle = {
+  //   transform: [
+  //     {
+  //       scale: animationValue,
+  //     },
+  //   ],
+  // };
 
   return (
     <View className="flex-1 bg-[#333]">
@@ -71,7 +60,7 @@ export default function QRGeneratorScreen() {
           }}
           resizeMode="contain"
         />
-        {options.map(({ name, icon: Icon, route }, index) => (
+        {/* {options.map(({ name, icon: Icon, route }, index) => (
           <Animated.View
             key={name}
             style={[
@@ -106,7 +95,7 @@ export default function QRGeneratorScreen() {
               </View>
             </Pressable>
           </Animated.View>
-        ))}
+        ))} */}
       </View>
     </View>
   );

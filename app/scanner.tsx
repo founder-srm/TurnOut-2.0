@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 
-import { supabase } from '../../utils/supabase';
+import { supabase } from '~/utils/supabase';
 
 const closeImg = require('../../assets/close.png');
 const flashImg = require('../../assets/flash.png');

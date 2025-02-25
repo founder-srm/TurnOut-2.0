@@ -6,6 +6,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import '~/global.css';
+
 import CustomSupabaseError from '~/components/CustomSupabaseError';
 import { supabase } from '~/utils/supabase';
 
